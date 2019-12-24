@@ -1,6 +1,13 @@
 """Util functions."""
 
 
+def conv_to_nums(str_list):
+    num_list = []
+    for str_ in str_list:
+        num_list.append(int(str_))
+    return num_list
+
+
 def in_range(num):
     if num in range(0, 10):
         return 0
