@@ -37,6 +37,7 @@ class Index extends React.Component {
             })
             .then((data) => {  // combination added
                 console.log(data.model);
+                alert('Entry added');
             })
             .catch(error => console.log(error));
     }
@@ -55,17 +56,22 @@ class Index extends React.Component {
                 let entry = '';
                 for (let i = 0; i < data.entries.length; i += 1) {
                     //  dict object
-                    entry.concat(data.entries[i].val1, ' ',
+                    entry = entry.concat(
+                                 data.entries[i].date, ': ',
+                                 data.entries[i].val1, ' ',
                                  data.entries[i].val2, ' ',
                                  data.entries[i].val3, ' ',
                                  data.entries[i].val4, ' ',
                                  data.entries[i].val5, ' ',
-                                 data.entries[i].model,
+                                 data.entries[i].model
                     );
                     dataResults.push(entry);
+
+                    //reset entry
+                    entry = '';
                 }
                 this.setState({
-                results: dataResults,
+                    results: dataResults,
                 });
             });
     }
@@ -73,17 +79,16 @@ class Index extends React.Component {
     renderResults() {
         const {results} = this.state;
         const resultsList = [];
-        console.log('yeet');
-        console.log(this.state);
         if (results.length !== 0) {
             for (let i = 0; i < results.length; i += 1) {
-                resultsLists.push(
+                resultsList.push(
                     <Result
                         text={results[i]}
                     />,
                 )
             }
         }
+        return resultsList;
     }
 
     render() {

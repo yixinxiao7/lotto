@@ -31,3 +31,13 @@ def get_db():
         flask.g.sqlite_db.execute("PRAGMA foreign_keys = ON")
 
     return flask.g.sqlite_db
+
+
+@lotto.app.teardown_appcontext
+def close_db(error):
+    """Close the database at the end of a request."""
+    # Assertion needed to avoid style error
+    assert error or not error
+    if hasattr(flask.g, 'sqlite_db'):
+        flask.g.sqlite_db.commit()
+        flask.g.sqlite_db.close()
