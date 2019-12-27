@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# Lotto Server
+#
+# Clean, build and start server
+#
+#
+# Stop on errors, print commands
+# See https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+set -Eeuo pipefail
+
+# Sanity check command line options
+usage() {
+    echo "Usage: $0 (start|stop|restart)"
+}
+
+if [ $# -ne 1 ]; then
+    usage
+    exit 1
+fi
+
+# Parse argument
+case $1 in
+	"start")
+	# Start up server
+	if pgrep -f 'flask run --host 0.0.0.0 --port 8000'; then
+        echo "Error: a process is already using port 8000"
+		exit 1
+	else
+		echo "Starting lotto server ..."
+		echo "+ export FLASK_APP=lotto"
+        export FLASK_APP=lotto
+        echo "+ export LOTTO_SETTINGS=config.py"
+        export LOTTO_SETTINGS=config.py
+		echo "+ flask run --host 0.0.0.0 --port 8000 &> /dev/null &"
+        flask run --host 0.0.0.0 --port 8000
+	fi
+	;;
+	"stop")
+    echo "stopping lotto server ..."
+    echo "+ pkill -f 'flask run --host 0.0.0.0 --port 8000'"
+    if pgrep -f 'flask run --host 0.0.0.0 --port 8000'; then
+      pkill -f 'flask run --host 0.0.0.0 --port 8000'
+    fi
+	;;
+	"restart")
+    echo "stopping lotto server ..."
+    echo "+ pkill -f 'flask run --host 0.0.0.0 --port 8000'"
+    if pgrep -f 'flask run --host 0.0.0.0 --port 8000'; then
+      pkill -f 'flask run --host 0.0.0.0 --port 8000'
+    fi
+    echo "starting lotto server ..."
+    echo "+ export LOTTO_SETTINGS=config.py"
+    export LOTTO_SETTINGS=config.py
+    echo "+ export FLASK_APP=lotto"
+    export FLASK_APP=lotto
+    echo "+ flask run --host 0.0.0.0 --port 8000 &> /dev/null &"
+    flask run --host 0.0.0.0 --port 8000 &> /dev/null &
+    ;;
+	*)
+	usage
+	;;
+esac

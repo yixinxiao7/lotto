@@ -2,6 +2,7 @@
 
 
 def conv_to_nums(str_list):
+    """Convert list of strs to list of ints."""
     num_list = []
     for str_ in str_list:
         num_list.append(int(str_))
@@ -9,6 +10,7 @@ def conv_to_nums(str_list):
 
 
 def in_range(num):
+    """Helper function for convert_to_model."""
     if num in range(0, 10):
         return 0
     elif num in range(10, 20):
