@@ -41,9 +41,11 @@ def convert_to_model(num_list):
         if first_val:
             model_output += model_vals[0]
             first_val = False
+            prev_val = num
         else:
-            if num in range(range_[0], range_[1]):
+            if num in range(range_[0], range_[1]) or in_range(num) == in_range(prev_val):
                 model_output += model_vals[val_ptr]
+                prev_val = num
             else:  # make updates
                 try:
                     curr_range_idx = in_range(range_[0])
@@ -55,5 +57,7 @@ def convert_to_model(num_list):
                 range_[0] += diff_range
                 range_[1] += diff_range
                 val_ptr += 1
+                prev_val = num
                 model_output += model_vals[val_ptr]
+    print(model_output)
     return model_output
