@@ -32,7 +32,7 @@ def handle_request():
         # get entry
         size = flask.request.args.get("size", type=int)
         try:
-            all_entries = cursor.execute("SELECT * FROM combinations ORDER BY date DESC").fetchall()
+            all_entries = cursor.execute("SELECT * FROM combinations ORDER BY id DESC").fetchall()
             if size == 0:
                 # get all entries
                 context['entries'] = all_entries
