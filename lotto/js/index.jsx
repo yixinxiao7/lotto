@@ -11,6 +11,7 @@ class Index extends React.Component {
             results: [],  //list of strs
             text: '',
             dateText: '',
+            yearText: '',
             displayText: '',
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -22,7 +23,10 @@ class Index extends React.Component {
         /* POST request */
         event.preventDefault();
         const url = '/api/';
-        const data = JSON.stringify({date: this.state.dateText, text: this.state.text});
+        const data = JSON.stringify({year: this.state.yearText,
+                                     date: this.state.dateText,
+                                     text: this.state.text
+                                    });
         fetch(url, { 
             method: 'POST',
             credentials: 'include',
@@ -57,13 +61,15 @@ class Index extends React.Component {
                 for (let i = 0; i < data.entries.length; i += 1) {
                     //  dict object
                     entry = entry.concat(
+                                 data.entries[i].year, ': ',
                                  data.entries[i].date, ': ',
                                  data.entries[i].val1, ' ',
                                  data.entries[i].val2, ' ',
                                  data.entries[i].val3, ' ',
                                  data.entries[i].val4, ' ',
                                  data.entries[i].val5, ' ',
-                                 data.entries[i].model
+                                 data.entries[i].model, ' ',
+                                 data.entries[i].model_ranges,
                     );
                     dataResults.push(entry);
 
@@ -95,7 +101,14 @@ class Index extends React.Component {
         return(
             <div>
                 <form onSubmit={this.handleSubmit}>
-                    <b>Date</b>
+                    <b>Year</b>
+                    <input
+                        type="text"
+                        name="year_input"
+                        value={this.state.yearText}
+                        onChange={(e) => this.setState({ yearText: e.target.value })}
+                    />
+                    <b>Day</b>
                     <input
                         type="text"
                         name="date_input"

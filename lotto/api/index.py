@@ -1,7 +1,7 @@
 import flask
 import lotto
 
-from lotto.api.model import convert_to_model, conv_to_nums
+from lotto.api.model import convert_to_model, conv_to_nums, convert_to_ranges
 from lotto.db import get_db
 
 
@@ -12,16 +12,18 @@ def handle_request():
     cursor = db.cursor()
     if flask.request.method == 'POST':
         #  add entry to db
+        year = flask.request.get_json()['year']
         date = flask.request.get_json()['date']
         combination = flask.request.get_json()['text']
         comb_nums = conv_to_nums(combination.split())
+        model_ranges = convert_to_ranges(comb_nums)
         model_str = convert_to_model(comb_nums)
 
-        cursor.execute("INSERT INTO combinations(date, val1, val2, val3, val4, val5, model)" +
-                       "VALUES ('" + date + "'," + str(comb_nums[0]) +
+        cursor.execute("INSERT INTO combinations(year, date, val1, val2, val3, val4, val5, model, model_ranges)" +
+                       "VALUES ('" + year + "','" + date + "'," + str(comb_nums[0]) +
                        "," + str(comb_nums[1]) + "," + str(comb_nums[2]) +
                        "," + str(comb_nums[3]) + "," + str(comb_nums[4]) +
-                       ",'" + model_str + "');"
+                       ",'" + model_str + "','" + model_ranges + "');"
                       )
         context = {}
         context['model'] = model_str

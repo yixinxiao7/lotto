@@ -28,6 +28,14 @@ def in_range(num):
     else:
         raise Exception
 
+def convert_to_ranges(num_list):
+    """Return a string of the ranges."""
+    output = ''
+    for num in num_list:
+        print(num)
+        output += str(in_range(num))
+    return output
+
 
 def convert_to_model(num_list):
     """Converts input to model."""
