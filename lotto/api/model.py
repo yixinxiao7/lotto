@@ -67,5 +67,4 @@ def convert_to_model(num_list):
                 val_ptr += 1
                 prev_val = num
                 model_output += model_vals[val_ptr]
-    print(model_output)
     return model_output

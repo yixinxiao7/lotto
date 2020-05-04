@@ -108,7 +108,7 @@ class Index extends React.Component {
                         value={this.state.yearText}
                         onChange={(e) => this.setState({ yearText: e.target.value })}
                     />
-                    <b>Day</b>
+                    <b>Month</b>
                     <input
                         type="text"
                         name="date_input"
