@@ -14,9 +14,41 @@ class Index extends React.Component {
             yearText: '',
             displayText: '',
         };
+        this.handleFileSubmit = this.handleFileSubmit.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.renderResults = this.renderResults.bind(this);
+    }
+
+    handleFileSubmit(e) {
+        // e.preventDefault();
+        let files = e.target.files;
+        let reader = new FileReader();
+        reader.readAsDataURL(files[0]);
+        reader.onload = function(event) {
+            // console.log(event.target.result);
+            const url = '/excelupload/';
+            const data = JSON.stringify({file: event.target.result});
+            console.log(data)
+            fetch(url, { 
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type':  'application/json',
+                },
+                body: data })
+                .then((response) => {
+                    if (!response.ok) throw Error(response.statusText);
+                    return response.json();
+                })
+                .then((data) => {
+                    alert('File uploaded');
+                })
+                .catch(error => console.log(error));
+            };
+        
+        // data info: e.target.result
     }
 
     handleSubmit(event) {
@@ -128,6 +160,14 @@ class Index extends React.Component {
                     />
                 </form>
                 <p>&nbsp;</p>
+                <div onSubmit={this.onFormSubmit}>
+                    <b>Upload excel file data</b>
+                    <input 
+                        type="file"
+                        name="file"
+                        onChange={(e) => this.handleFileSubmit(e)}
+                    />
+                </div>
                 <b>Show Database</b>
                 <form onSubmit={this.handleClick}>
                     <input
