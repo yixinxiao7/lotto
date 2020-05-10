@@ -11,6 +11,9 @@ def make_prediction():
     cursor = db.cursor()
 
     context = {}
+    # get model number
+    
     model = 0
     context['model'] = model
+
     return flask.jsonify(**context)

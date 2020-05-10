@@ -72,7 +72,11 @@ def handle_file_upload():
 
     # add to /data
     cwd = os.getcwd()
-    path=os.path.join(cwd, 'data/data.xlsx')
+    data_path = os.path.join(cwd, 'data/')
+    # ascertain data directory exists first
+    if not os.path.exists(data_path):
+        os.mkdir(data_path)
+    path = os.path.join(cwd, 'data/data.xlsx')
     if not os.path.exists(path):
         with open(path, 'wb') as f:
             f.write(file_data)
