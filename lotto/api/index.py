@@ -77,9 +77,11 @@ def handle_file_upload():
     if not os.path.exists(data_path):
         os.mkdir(data_path)
     path = os.path.join(cwd, 'data/data.xlsx')
-    if not os.path.exists(path):
-        with open(path, 'wb') as f:
-            f.write(file_data)
+    # remove old data file
+    if os.path.exists(path):
+        os.remove(path)
+    with open(path, 'wb') as f:
+        f.write(file_data)
 
     # update database
     wb = xlrd.open_workbook(path)
@@ -115,5 +117,3 @@ def handle_file_upload():
     # ack
     context = {} 
     return flask.jsonify(**context)
-
-   
