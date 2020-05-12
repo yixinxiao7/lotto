@@ -4,7 +4,7 @@ import xlrd
 import os
 import base64
 
-from lotto.api.model import convert_to_model, conv_to_nums, convert_to_ranges
+from lotto.api.aux.model import convert_to_model, conv_to_nums, convert_to_ranges
 from lotto.db import get_db
 
 
@@ -114,6 +114,7 @@ def handle_file_upload():
                         "," + str(comb_nums[3]) + "," + str(comb_nums[4]) +
                         ",'" + model_str + "','" + model_ranges + "');"
                         )
+
     # ack
     context = {} 
     return flask.jsonify(**context)
