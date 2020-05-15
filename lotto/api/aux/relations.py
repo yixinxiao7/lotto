@@ -79,15 +79,17 @@ class RelationGenerator:
             if type_to_instance is not None:
                 str_sequence = ' '.join([entry.val1, entry.val2, entry.val3, entry.val4, entry.val5])
                 if entry.model not in type_to_instance:
-                    type_to_instance[type_to_instance] = [str_sequence]
+                    type_to_instance[entry.model] = [str_sequence]
                 else:
-                    type_to_instance[type_to_instance].append(str_sequence)
+                    type_to_instance[entry.model].append(str_sequence)
+
             if firstnumrange_to_num is not None:
                 range_num = in_range(entry.val1)
                 if range_num not in firstnumrange_to_num:
                     firstnumrange_to_num[range_num] = [entry.val1]
                 else:
                     firstnumrange_to_num[range_num].append(entry.val1)
+
             if horizontal_relations is not None:
                 vals = [entry.val1, entry.val2, entry.val3, entry.val4, entry.val5]
                 for i in range(len(vals) - 1):
@@ -95,6 +97,7 @@ class RelationGenerator:
                         # difference  >= 0
                         if vals[j] - vals[i] <= 3:
                             self.insert_horizontal_relation(vals[j], vals[i])
+
             if vertical_relations is not None:
                 new_entry = [entry.val1, entry.val2, entry.val3, entry.val4, entry.val5]
                 if not past_nums:
@@ -108,3 +111,12 @@ class RelationGenerator:
                     past_num.append(new_entry)
                     if len(past_num) > 14:  # maintain maximum length of 14
                         past_num.pop(0)
+    def get_frequency(self, prefix):
+        """
+        Returns number of model instances of all model ranges with given prefix.
+        """
+        freq = 0
+        for type_, instance in self.type_to_instance.items():
+            if type_.find(prefix, beg=0, end=len(type_)):
+                freq += len(self.type_to_instance[type_])
+        return freq
