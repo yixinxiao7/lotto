@@ -67,3 +67,17 @@ def convert_to_model(num_list):
                 prev_val = num
                 model_output += model_vals[val_ptr]
     return model_output
+
+def convert_model_to_coordinates(model):
+    """ Converts string model to base numeric representation. 1-based."""
+    nums = []
+    for char in model:
+        nums.append(ord(char.lower())-ord('a')+1)
+    return nums
+
+def convert_coordinates_to_model(coord):
+    """ Converts coordinates to string model."""
+    model = ""
+    for num in coordinates:
+        model += chr((num-1) + ord('a')).upper()
+    return model

@@ -6,7 +6,7 @@
 # TODO: TEST THIS FUNCTIOn. MAKE TEST DIRECTORY
 from itertools import combinations
 from lotto.db import get_db
-from lotto.api.aux.model import in_range
+from lotto.api.aux.model import in_range, convert_model_to_coordinates
 
 
 class RelationGenerator:
@@ -16,6 +16,8 @@ class RelationGenerator:
         self.firstnumrange_to_num = firstnumrange_to_num
         self.horizontal_relations = horizontal_relations
         self.vertical_relations = vertical_relations
+        self.X = []
+        self.y = []
 
     def insert_horizontal_relation(self, val1, val2):
         """
@@ -76,6 +78,11 @@ class RelationGenerator:
                 return distances
 
         for entry in all_entries:
+            model = entry.model
+            coordinates = convert_model_to_coordinates(tuple(model))
+            X.append(coordinates[:4])  # tuple
+            y.append(coordinates[-1])  # number
+
             if type_to_instance is not None:
                 str_sequence = ' '.join([entry.val1, entry.val2, entry.val3, entry.val4, entry.val5])
                 if entry.model not in type_to_instance:
@@ -111,6 +118,7 @@ class RelationGenerator:
                     past_num.append(new_entry)
                     if len(past_num) > 14:  # maintain maximum length of 14
                         past_num.pop(0)
+
     def get_frequency(self, prefix):
         """
         Returns number of model instances of all model ranges with given prefix.
