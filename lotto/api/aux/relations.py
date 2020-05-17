@@ -67,7 +67,7 @@ class RelationGenerator:
         all_entries = cursor.execute("SELECT * FROM combinations").fetchall()
         past_nums = []
 
-        if vertical_relations is not None:
+        if self.vertical_relations is not None:
             def find_element(num):
                 distances = []
                 entry_idx = -1
@@ -78,35 +78,39 @@ class RelationGenerator:
                 return distances
 
         for entry in all_entries:
-            model = entry.model
+            model = entry['model']
             coordinates = convert_model_to_coordinates(tuple(model))
-            X.append(coordinates[:4])  # tuple
-            y.append(coordinates[-1])  # number
+            self.X.append(coordinates[:4])  # tuple
+            self.y.append(coordinates[-1])  # number
 
-            if type_to_instance is not None:
-                str_sequence = ' '.join([entry.val1, entry.val2, entry.val3, entry.val4, entry.val5])
-                if entry.model not in type_to_instance:
-                    type_to_instance[entry.model] = [str_sequence]
+            if self.type_to_instance is not None:
+                str_sequence = ' '.join([
+                                        str(entry['val1']), str(entry['val2']),
+                                        str(entry['val3']), str(entry['val4']),
+                                        str(entry['val5'])
+                                        ])
+                if model not in self.type_to_instance:
+                    self.type_to_instance[model] = [str_sequence]
                 else:
-                    type_to_instance[entry.model].append(str_sequence)
+                    self.type_to_instance[model].append(str_sequence)
 
-            if firstnumrange_to_num is not None:
-                range_num = in_range(entry.val1)
-                if range_num not in firstnumrange_to_num:
-                    firstnumrange_to_num[range_num] = [entry.val1]
+            if self.firstnumrange_to_num is not None:
+                range_num = in_range(entry['val1'])
+                if range_num not in self.firstnumrange_to_num:
+                    self.firstnumrange_to_num[range_num] = [entry['val1']]
                 else:
-                    firstnumrange_to_num[range_num].append(entry.val1)
+                    self.firstnumrange_to_num[range_num].append(entry['val1'])
 
-            if horizontal_relations is not None:
-                vals = [entry.val1, entry.val2, entry.val3, entry.val4, entry.val5]
+            if self.horizontal_relations is not None:
+                vals = [entry['val1'], entry['val2'], entry['val3'], entry['val4'], entry['val5']]
                 for i in range(len(vals) - 1):
                     for j in range(i+1, len(vals)):
                         # difference  >= 0
                         if vals[j] - vals[i] <= 3:
                             self.insert_horizontal_relation(vals[j], vals[i])
 
-            if vertical_relations is not None:
-                new_entry = [entry.val1, entry.val2, entry.val3, entry.val4, entry.val5]
+            if self.vertical_relations is not None:
+                new_entry = [entry['val1'], entry['val2'], entry['val3'], entry['val4'], entry['val5']]
                 if not past_nums:
                     past_nums.append(new_entry)
                 else:
