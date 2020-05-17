@@ -78,6 +78,6 @@ def convert_model_to_coordinates(model):
 def convert_coordinates_to_model(coord):
     """ Converts coordinates to string model."""
     model = ""
-    for num in coordinates:
+    for num in coord:
         model += chr((num-1) + ord('a')).upper()
     return model

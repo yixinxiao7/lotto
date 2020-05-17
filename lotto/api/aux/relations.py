@@ -129,6 +129,6 @@ class RelationGenerator:
         """
         freq = 0
         for type_, instance in self.type_to_instance.items():
-            if type_.find(prefix, beg=0, end=len(type_)):
+            if type_.find(prefix, 0, len(type_)):
                 freq += len(self.type_to_instance[type_])
         return freq
