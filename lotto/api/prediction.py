@@ -22,8 +22,9 @@ def make_prediction():
     # teach model
     predictor.get_relations()
     # Phase 1: get model characterization
-    model = predictor.predict_model_char()
-    context['model'] = model
-    # TODO: choose best model
-
+    context['model_char'] = predictor.predict_model_char()
+    # TODO: Phase 2: get model
+    context['model'] = '12345'
+    # TODO: Phase 3: get numbers
+    context['nums'] = '17 27 37 47 57'
     return flask.jsonify(**context)

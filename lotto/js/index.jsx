@@ -139,7 +139,12 @@ class Index extends React.Component {
                 return response.json();
             })
             .then((data) => {
-                alert(`Model: ${data.model}`);
+                console.log(data)
+                alert(
+                      `Model Characterization: ${data.model_char}\n` +
+                      `Model: ${data.model}\n` +
+                      `Numbers: ${data.nums}`
+                     );
             });
     }
 

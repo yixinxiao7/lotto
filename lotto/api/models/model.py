@@ -174,6 +174,9 @@ class RelationModel:
                             self.num_to_others_freq[new_entry[i]][new_entry[j]] += 1
 
     def predict_model_char(self):
+        """
+        With current data, make a forecase of next model characterization. Returns a string.
+        """
         all_poss = "ABCDE"
         model = "A"
         letter_idx = 0
@@ -202,4 +205,5 @@ class RelationModel:
         print('Lin Reg Score: '  + str(reg.score(X,y)))
         num_model = reg.predict(np.array([pred_coord]))
         pred_coord.append(num_model[0])
+        # TODO: choose best model
         return convert_coordinates_to_model([int(i) for i in pred_coord])
