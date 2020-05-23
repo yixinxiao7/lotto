@@ -33,7 +33,7 @@ case $1 in
         echo "+ export LOTTO_SETTINGS=config.py"
         export LOTTO_SETTINGS=config.py
 		echo "+ flask run --host 0.0.0.0 --port 8000 &> /dev/null &"
-        flask run --host 0.0.0.0 --port 8000 &> /dev/null &
+        flask run --host 0.0.0.0 --port 8000 #&> /dev/null &
 	fi
 	;;
 	"stop")

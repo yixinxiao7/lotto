@@ -49,7 +49,7 @@ class RelationGenerator:
         the val occurred 1 entry away. The distance maps to a frequency
         """
         if val not in self.vertical_relations:
-            self.vertical_relations[val1] = {distance: 1}
+            self.vertical_relations[val] = {distance: 1}
         else:
             if distance not in self.vertical_relations[val]:
                 self.vertical_relations[val][distance] = 1
@@ -88,9 +88,14 @@ class RelationGenerator:
             def find_element(num):
                 distances = []
                 entry_idx = -1
-                for vals in reversed(num):
-                    if vals.find(num) != -1:
-                        distances.append(entry_idx * -1)
+                for vals in reversed(past_nums):
+                    try:
+                        vals.index(num)
+                    except ValueError:
+                        # failed to find
+                        entry_idx -= 1
+                        continue
+                    distances.append(entry_idx * -1)
                     entry_idx -= 1
                 return distances
 
@@ -136,9 +141,9 @@ class RelationGenerator:
                         distances = find_element(val)
                         for distance in distances:
                             self._insert_vertical_relation(val, distance)
-                    past_num.append(new_entry)
-                    if len(past_num) > 14:  # maintain maximum length of 14
-                        past_num.pop(0)
+                    past_nums.append(new_entry)
+                    if len(past_nums) > 14:  # maintain maximum length of 14
+                        past_nums.pop(0)
 
             if self.first_num_freq is not None:
                 first_val = entry['val1']

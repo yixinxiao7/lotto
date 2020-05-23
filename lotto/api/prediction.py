@@ -15,7 +15,14 @@ def make_prediction():
     context = {}
     all_poss = "ABCDE"
     # get model number
-    relation_generator = RelationGenerator(type_to_instance={})
+    relation_generator = RelationGenerator(
+                                           type_to_instance={}, 
+                                           firstnumrange_to_num={},
+                                           horizontal_relations={},
+                                           vertical_relations={},
+                                           first_num_freq={},
+                                           num_to_others_freq={}
+                                          )
     relation_generator.get_relations()
     model = "A"
     letter_idx = 0
