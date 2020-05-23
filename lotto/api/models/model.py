@@ -1,15 +1,16 @@
 """Util functions for model relations."""
-# uncomment if there are issues
-# import flask
-# import lotto
-
 # TODO: TEST THIS FUNCTIOn. MAKE TEST DIRECTORY
+import random
+import numpy as np
+
+
 from itertools import combinations
 from lotto.db import get_db
-from lotto.api.aux.model import in_range, convert_model_to_coordinates
+from sklearn.linear_model import LinearRegression
+from lotto.api.aux.model_util import in_range, convert_model_to_coordinates, convert_coordinates_to_model
 
 
-class RelationGenerator:
+class RelationModel:
 
     def __init__(
                  self,
@@ -55,6 +56,16 @@ class RelationGenerator:
                 self.vertical_relations[val][distance] = 1
             else:
                 self.vertical_relations[val][distance] += 1
+
+    def _get_frequency(self, prefix):
+        """
+        Returns number of model instances of all model ranges with given prefix.
+        """
+        freq = 0
+        for type_, instance in self.type_to_instance.items():
+            if type_.find(prefix, 0, len(type_)):
+                freq += len(self.type_to_instance[type_])
+        return freq
 
     def get_relations(self):
         """
@@ -162,12 +173,33 @@ class RelationGenerator:
                         else:
                             self.num_to_others_freq[new_entry[i]][new_entry[j]] += 1
 
-    def get_frequency(self, prefix):
-        """
-        Returns number of model instances of all model ranges with given prefix.
-        """
-        freq = 0
-        for type_, instance in self.type_to_instance.items():
-            if type_.find(prefix, 0, len(type_)):
-                freq += len(self.type_to_instance[type_])
-        return freq
+    def predict_model_char(self):
+        all_poss = "ABCDE"
+        model = "A"
+        letter_idx = 0
+        while len(model) != 4:
+            model += all_poss[letter_idx]
+            first_poss = model
+            freq1 = self._get_frequency(first_poss)
+            # change char in string
+            tmp = list(model)
+            tmp[-1] = all_poss[letter_idx+1]
+            second_poss = ''.join(tmp)
+            freq2 = self._get_frequency(second_poss)
+            dem = freq1 + freq2  # float
+            model = random.choices([first_poss, second_poss], weights=[(freq1/float(dem)), (freq2/float(dem))], k=1)
+            model = model[0]  # get string
+            if model == second_poss:
+                letter_idx += 1
+        print('Prior model: ' + model)
+        # convert model to coordinate
+        pred_coord = convert_model_to_coordinates(model)
+        # linear regression
+        X = np.asarray(self.X)  # array of tuples
+        y = np.asarray(self.y)  # array of integers
+        reg = LinearRegression().fit(X, y)
+        # score
+        print('Lin Reg Score: '  + str(reg.score(X,y)))
+        num_model = reg.predict(np.array([pred_coord]))
+        pred_coord.append(num_model[0])
+        return convert_coordinates_to_model([int(i) for i in pred_coord])
