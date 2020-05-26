@@ -1,4 +1,4 @@
-"""Util functions for model relations."""
+"""Class for model relations."""
 # TODO: TEST THIS FUNCTIOn. MAKE TEST DIRECTORY
 import random
 import numpy as np
@@ -58,9 +58,7 @@ class RelationModel:
                 self.vertical_relations[val][distance] += 1
 
     def _get_frequency(self, prefix):
-        """
-        Returns number of model instances of all model ranges with given prefix.
-        """
+        """ Returns number of model instances of all model ranges with given prefix. """
         freq = 0
         for type_, instance in self.type_to_instance.items():
             if type_.find(prefix, 0, len(type_)):
@@ -120,9 +118,9 @@ class RelationModel:
 
             if self.type_to_instance is not None:
                 str_sequence = ' '.join([
-                                        str(entry['val1']), str(entry['val2']),
-                                        str(entry['val3']), str(entry['val4']),
-                                        str(entry['val5'])
+                                        str(in_range(entry['val1'])), str(in_range(entry['val2'])),
+                                        str(in_range(entry['val3'])), str(in_range(entry['val4'])),
+                                        str(in_range(entry['val5']))
                                         ])
                 if model not in self.type_to_instance:
                     self.type_to_instance[model] = [str_sequence]
@@ -174,9 +172,7 @@ class RelationModel:
                             self.num_to_others_freq[new_entry[i]][new_entry[j]] += 1
 
     def predict_model_char(self):
-        """
-        With current data, make a forecase of next model characterization. Returns a string.
-        """
+        """ With current data, make a forecase of next model characterization. Returns a string. """
         all_poss = "ABCDE"
         model = "A"
         letter_idx = 0
@@ -207,3 +203,47 @@ class RelationModel:
         pred_coord.append(num_model[0])
         # TODO: choose best model
         return convert_coordinates_to_model([int(i) for i in pred_coord])
+
+    def predict_model(self, model_char):
+        """ Converts model characterization to model. """
+        prev_models = self.type_to_instance[model_char]
+        return random.choice(prev_models)  # already distributed, as prev_models may have duplicates
+
+    def predict_nums(self, model):
+        """ Converts model to values. """
+        # get first val
+        first_range = int(model[0])
+        total_range_freq = 0.0
+        range_nums = [num for num in range(first_range*10, (first_range*10)+10)]
+        range_poss_freq = [0]*10
+        idx = 0
+        for num in range_nums:
+            # TODO: test if this is correctly 
+            if num in self.first_num_freq:
+                total_range_freq += self.first_num_freq[num]
+                range_poss_freq[idx] = self.first_num_freq[num]
+            idx += 1
+        weighted_freqs = [(freq/total_range_freq) for freq in range_poss_freq]
+        model_nums = random.choices(range_nums, weights=weighted_freqs, k=1)
+        # get remaining vals based on horizontal and vertical relations
+        prev_range = first_range
+        prev_num = model_nums[0]
+        curr_range_idx = 1
+        while len(model_nums) != 5:
+            curr_range = int(model[curr_range_idx])
+            next_num = [-1]
+            if curr_range == prev_range:  # horizontal relation. TODO: consider weighted prob
+                if prev_num in self.horizontal_relations:
+                    vals, weighted_probs = self._get_probs(prev_num)
+                    next_num = random.choices(vals, weighted_probs)
+
+                else:
+                    # TODO: get number normally
+
+            elif curr_range == prev_range + 1:  # less chance of hoz relation
+
+            else:  # no hoz relation
+
+            model_nums += next_num
+            prev_range = curr_range
+            curr_range_idx += 1
