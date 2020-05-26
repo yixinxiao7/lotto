@@ -65,6 +65,37 @@ class RelationModel:
                 freq += len(self.type_to_instance[type_])
         return freq
 
+    def _get_probs(num):
+        """ With horizontal_relations, get all related numbers and their weighted probabilties. """
+        all_related_nums = []
+        freqs = []
+        for r_num, freq in self.horizontal_relations[num].items():
+            all_related_nums.append(r_num)
+            freqs.append(freq)
+        sum_ = float(sum(freqs))
+        weighted_probs = [(freq/sum_) for freq in freqs]
+        return all_related_nums, weighted_probs
+    
+    def _get_common_num(prev_num, range_):
+        """ Finds num in range which is larger than prev_num. """
+        if prev_num in self.num_to_others_freq:
+            related_range_nums = []
+            freqs = []
+            for num, freq in self.num_to_others_freq[prev_num].items():
+                if in_range(num) == range_:
+                    related_range_nums.append(num)
+                    freqs.append(freq)
+            sum_ = float(sum(freqs))
+            weighted_probs = [(freq/sum_) for freq in freqs]
+            return random.choices(related_range_nums, weights=weighted_probs, k=1)[0]
+        else:
+            # grab random value larger than prev_num within range.
+            # if prev_num not in range, chooses random value within range vals.
+            # TODO: check if this is right
+            if in_range(prev_num) != range_:
+                prev_num = range_*10
+            return random.choice([num for num in range(prev_num, ((range_*10)+10))])
+
     def get_relations(self):
         """
         type_to_instance: dictionary of model to sequence instances.
@@ -232,14 +263,12 @@ class RelationModel:
         while len(model_nums) != 5:
             curr_range = int(model[curr_range_idx])
             next_num = [-1]
-            if curr_range == prev_range:  # horizontal relation. TODO: consider weighted prob
+            if curr_range == prev_range:  # horizontal relation. TODO: consider weighted prob for hoz
                 if prev_num in self.horizontal_relations:
                     vals, weighted_probs = self._get_probs(prev_num)
-                    next_num = random.choices(vals, weighted_probs)
-
+                    next_num = random.choices(vals, weights=weighted_probs, k=1)[0]
                 else:
-                    # TODO: get number normally
-
+                    next_num = self._get_common_num(prev_num, curr_range) 
             elif curr_range == prev_range + 1:  # less chance of hoz relation
 
             else:  # no hoz relation
