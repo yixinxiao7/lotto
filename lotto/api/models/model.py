@@ -285,7 +285,16 @@ class RelationModel:
                 else:
                     next_num = self._get_common_num(prev_num, curr_range) 
             elif curr_range == prev_range + 1:  # less chance of hoz relation
-                
+                # TODO: figure out better way to decide rather than hard code
+                grab_hoz_related = random.choice([1,0])
+                if grab_hoz_related:  # 50%, even smaller chance to get related num
+                    vals, weighted_probs = self._get_probs(prev_num)
+                    if vals:
+                        # TODO: implement
+                    else:
+                        next_num = self._get_common_num(prev_num, curr_range)
+                else:  # pseudo-50%, actually higher
+                    next_num = self._get_common_num(prev_num, curr_range)
             else:  # no hoz relation
                 next_num = self._get_common_num(prev_num, curr_range)
             model_nums += next_num
