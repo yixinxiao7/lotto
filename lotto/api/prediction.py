@@ -27,6 +27,6 @@ def make_prediction():
     # Phase 2: get model
     model = predictor.predict_model(model_char)
     context['model'] = model
-    # TODO: Phase 3: get numbers
+    # Phase 3: get numbers
     context['nums'] = predictor.predict_nums(model)
     return flask.jsonify(**context)

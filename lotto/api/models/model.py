@@ -65,7 +65,7 @@ class RelationModel:
                 freq += len(self.type_to_instance[type_])
         return freq
 
-    def _get_probs(num):
+    def _get_probs(self, num):
         """ With horizontal_relations, get all related numbers and their weighted probabilties. """
         all_related_nums = []
         freqs = []
@@ -77,7 +77,7 @@ class RelationModel:
         weighted_probs = [(freq/sum_) for freq in freqs]
         return all_related_nums, weighted_probs
     
-    def _get_common_num(prev_num, range_):
+    def _get_common_num(self, prev_num, range_):
         """ Finds num in range which is larger than prev_num. Returns list object. """
         if prev_num in self.num_to_others_freq:
             # has related nums
@@ -247,8 +247,10 @@ class RelationModel:
         prev_models = self.type_to_instance[model_char]
         return random.choice(prev_models)  # already distributed, as prev_models may have duplicates
 
-    def predict_nums(self, model):
+    def predict_nums(self, model_):
         """ Converts model to values. """
+        # convert
+        model = model_.split(' ')
         # get first val
         first_range = int(model[0])
         total_range_freq = 0.0
@@ -267,6 +269,7 @@ class RelationModel:
         prev_range = first_range
         prev_num = model_nums[0]
         curr_range_idx = 1
+        
         while len(model_nums) != 5:
             curr_range = int(model[curr_range_idx])
             next_num = [-1]
@@ -275,13 +278,15 @@ class RelationModel:
                     vals, weighted_probs = self._get_probs(prev_num)
                     next_num = random.choices(vals, weights=weighted_probs, k=1)
                     # only accept next_num in curr_range
-                    if in_range(next_num) != curr_range:  # this probability changes depending on what curr_Range is.
+                    if in_range(next_num[0]) != curr_range:  # this probability changes depending on what curr_Range is.
                         next_num = self._get_common_num(prev_num, curr_range)
                 else:
                     next_num = self._get_common_num(prev_num, curr_range)
             else:  # no hoz relation
                 next_num = self._get_common_num(prev_num, curr_range)
             model_nums += next_num
+            # prepare for next iter
             prev_range = curr_range
+            prev_num = next_num[0]
             curr_range_idx += 1
         return model_nums
