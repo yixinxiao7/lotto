@@ -90,8 +90,8 @@ class RelationModel:
             if not freqs:
                 # no related nums within specified range_. Choose random number in specified range
                 if in_range(prev_num) != range_:
-                    prev_num = range_ * 10
-                return random.choice([num for num in range(prev_num, ((range_*10)+10))])
+                    prev_num = (range_ * 10) - 1
+                return [random.choice([num for num in range(prev_num+1, ((range_*10)+10))])]
             sum_ = float(sum(freqs))
             weighted_probs = [(freq/sum_) for freq in freqs]
             return random.choices(related_range_nums, weights=weighted_probs, k=1)
@@ -100,8 +100,8 @@ class RelationModel:
             # if prev_num not in range, chooses random value within range vals.
             # TODO: check if this is right
             if in_range(prev_num) != range_:
-                prev_num = range_ * 10  # increases prev_num
-            return random.choice([num for num in range(prev_nxum, ((range_*10)+10))])
+                prev_num = (range_ * 10) - 1  # increases prev_num
+            return [random.choice([num for num in range(prev_num+1, ((range_*10)+10))])]
 
     def get_relations(self):
         """
@@ -177,7 +177,7 @@ class RelationModel:
                     for j in range(i+1, len(new_entry)):
                         # difference  >= 0
                         if new_entry[j] - new_entry[i] <= 3:
-                            self._insert_horizontal_relation(new_entry[j], new_entry[i])
+                            self._insert_horizontal_relation(new_entry[i], new_entry[j])
 
             if self.vertical_relations is not None:
                 if not past_nums:
@@ -289,4 +289,5 @@ class RelationModel:
             prev_range = curr_range
             prev_num = next_num[0]
             curr_range_idx += 1
+
         return model_nums
