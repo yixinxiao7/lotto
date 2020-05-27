@@ -69,32 +69,43 @@ class RelationModel:
         """ With horizontal_relations, get all related numbers and their weighted probabilties. """
         all_related_nums = []
         freqs = []
+        num_range = in_range(num)
         for r_num, freq in self.horizontal_relations[num].items():
-            all_related_nums.append(r_num)
-            freqs.append(freq)
+            if in_range(r_num) == num_range:
+                all_related_nums.append(r_num)
+                freqs.append(freq)
+        if not freqs:
+            #  no related values within same range as num
+            return [], []
         sum_ = float(sum(freqs))
         weighted_probs = [(freq/sum_) for freq in freqs]
         return all_related_nums, weighted_probs
     
     def _get_common_num(prev_num, range_):
-        """ Finds num in range which is larger than prev_num. """
+        """ Finds num in range which is larger than prev_num. Returns list object. """
         if prev_num in self.num_to_others_freq:
+            # has related nums
             related_range_nums = []
             freqs = []
             for num, freq in self.num_to_others_freq[prev_num].items():
                 if in_range(num) == range_:
                     related_range_nums.append(num)
                     freqs.append(freq)
+            if not freqs:
+                # no related nums within specified range_. Choose random number in specified range
+                if in_range(prev_num) != range_:
+                    prev_num = range_ * 10
+                return random.choice([num for num in range(prev_num, ((range_*10)+10))])
             sum_ = float(sum(freqs))
             weighted_probs = [(freq/sum_) for freq in freqs]
-            return random.choices(related_range_nums, weights=weighted_probs, k=1)[0]
+            return random.choices(related_range_nums, weights=weighted_probs, k=1)
         else:
             # grab random value larger than prev_num within range.
             # if prev_num not in range, chooses random value within range vals.
             # TODO: check if this is right
             if in_range(prev_num) != range_:
-                prev_num = range_*10
-            return random.choice([num for num in range(prev_num, ((range_*10)+10))])
+                prev_num = range_ * 10  # increases prev_num
+            return random.choice([num for num in range(prev_nxum, ((range_*10)+10))])
 
     def get_relations(self):
         """
@@ -266,13 +277,17 @@ class RelationModel:
             if curr_range == prev_range:  # horizontal relation. TODO: consider weighted prob for hoz
                 if prev_num in self.horizontal_relations:
                     vals, weighted_probs = self._get_probs(prev_num)
-                    next_num = random.choices(vals, weights=weighted_probs, k=1)[0]
+                    if vals:
+                        next_num = random.choices(vals, weights=weighted_probs, k=1)
+                    else:
+                        # found no related values within same range to prev_num
+                        next_num = self._get_common_num(prev_num, curr_range)
                 else:
                     next_num = self._get_common_num(prev_num, curr_range) 
             elif curr_range == prev_range + 1:  # less chance of hoz relation
-
+                
             else:  # no hoz relation
-
+                next_num = self._get_common_num(prev_num, curr_range)
             model_nums += next_num
             prev_range = curr_range
             curr_range_idx += 1
