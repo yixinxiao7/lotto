@@ -71,12 +71,8 @@ class RelationModel:
         freqs = []
         num_range = in_range(num)
         for r_num, freq in self.horizontal_relations[num].items():
-            if in_range(r_num) == num_range:
-                all_related_nums.append(r_num)
-                freqs.append(freq)
-        if not freqs:
-            #  no related values within same range as num
-            return [], []
+            all_related_nums.append(r_num)
+            freqs.append(freq)
         sum_ = float(sum(freqs))
         weighted_probs = [(freq/sum_) for freq in freqs]
         return all_related_nums, weighted_probs
@@ -274,26 +270,14 @@ class RelationModel:
         while len(model_nums) != 5:
             curr_range = int(model[curr_range_idx])
             next_num = [-1]
-            if curr_range == prev_range:  # horizontal relation. TODO: consider weighted prob for hoz
+            if curr_range == prev_range or curr_range == prev_range + 1:  # horizontal relation possibility. TODO: consider weighted prob for hoz
                 if prev_num in self.horizontal_relations:
                     vals, weighted_probs = self._get_probs(prev_num)
-                    if vals:
-                        next_num = random.choices(vals, weights=weighted_probs, k=1)
-                    else:
-                        # found no related values within same range to prev_num
+                    next_num = random.choices(vals, weights=weighted_probs, k=1)
+                    # only accept next_num in curr_range
+                    if in_range(next_num) != curr_range:  # this probability changes depending on what curr_Range is.
                         next_num = self._get_common_num(prev_num, curr_range)
                 else:
-                    next_num = self._get_common_num(prev_num, curr_range) 
-            elif curr_range == prev_range + 1:  # less chance of hoz relation
-                # TODO: figure out better way to decide rather than hard code
-                grab_hoz_related = random.choice([1,0])
-                if grab_hoz_related:  # 50%, even smaller chance to get related num
-                    vals, weighted_probs = self._get_probs(prev_num)
-                    if vals:
-                        # TODO: implement
-                    else:
-                        next_num = self._get_common_num(prev_num, curr_range)
-                else:  # pseudo-50%, actually higher
                     next_num = self._get_common_num(prev_num, curr_range)
             else:  # no hoz relation
                 next_num = self._get_common_num(prev_num, curr_range)
