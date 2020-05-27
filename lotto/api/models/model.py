@@ -284,3 +284,4 @@ class RelationModel:
             model_nums += next_num
             prev_range = curr_range
             curr_range_idx += 1
+        return model_nums
