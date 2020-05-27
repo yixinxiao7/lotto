@@ -77,8 +77,14 @@ class RelationModel:
         weighted_probs = [(freq/sum_) for freq in freqs]
         return all_related_nums, weighted_probs
     
-    def _get_common_num(self, prev_num, range_):
+    def _get_common_num(self, prev_num, range_, model, model_idx):
         """ Finds num in range which is larger than prev_num. Returns list object. """
+        # get num of consecutive model range excluding first
+        range_reps = 0
+        while model_idx < 4:  
+            if model[model_idx] == model[model_idx+1]:
+                range_reps += 1
+            model_idx += 1
         if prev_num in self.num_to_others_freq:
             # has related nums
             related_range_nums = []
@@ -91,7 +97,7 @@ class RelationModel:
                 # no related nums within specified range_. Choose random number in specified range
                 if in_range(prev_num) != range_:
                     prev_num = (range_ * 10) - 1
-                return [random.choice([num for num in range(prev_num+1, ((range_*10)+10))])]
+                return [random.choice([num for num in range(prev_num+1, ((range_*10)+10)-range_reps)])]
             sum_ = float(sum(freqs))
             weighted_probs = [(freq/sum_) for freq in freqs]
             return random.choices(related_range_nums, weights=weighted_probs, k=1)
@@ -101,7 +107,7 @@ class RelationModel:
             # TODO: check if this is right
             if in_range(prev_num) != range_:
                 prev_num = (range_ * 10) - 1  # increases prev_num
-            return [random.choice([num for num in range(prev_num+1, ((range_*10)+10))])]
+            return [random.choice([num for num in range(prev_num+1, ((range_*10)+10)-range_reps)])]
 
     def get_relations(self):
         """
@@ -279,11 +285,11 @@ class RelationModel:
                     next_num = random.choices(vals, weights=weighted_probs, k=1)
                     # only accept next_num in curr_range
                     if in_range(next_num[0]) != curr_range:  # this probability changes depending on what curr_Range is.
-                        next_num = self._get_common_num(prev_num, curr_range)
+                        next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx)
                 else:
-                    next_num = self._get_common_num(prev_num, curr_range)
+                    next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx)
             else:  # no hoz relation
-                next_num = self._get_common_num(prev_num, curr_range)
+                next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx)
             model_nums += next_num
             # prepare for next iter
             prev_range = curr_range
