@@ -65,38 +65,56 @@ class RelationModel:
                 freq += len(self.type_to_instance[type_])
         return freq
 
-    def _get_probs(self, num):
+    def _get_range_reps(self, model, model_idx):
+        range_reps = 0
+        tmp = model_idx
+        while model_idx < 4:
+            if model[tmp] == model[model_idx+1]:
+                range_reps += 1
+            model_idx += 1
+        return range_reps
+
+    def _get_probs(self, num, range_reps):
         """ With horizontal_relations, get all related numbers and their weighted probabilties. """
         all_related_nums = []
         freqs = []
         num_range = in_range(num)
+        end_range = num + 3  # greatest value is 3 largest than num
+        # prevent grabbing too large of a value
+        valid_range = [*range(num, end_range+1-range_reps)]
         for r_num, freq in self.horizontal_relations[num].items():
-            all_related_nums.append(r_num)
-            freqs.append(freq)
-        sum_ = float(sum(freqs))
+            if r_num in valid_range:
+                all_related_nums.append(r_num)
+                freqs.append(freq)
+        sum_ = float(sum(freqs))  # 0 if empty
         weighted_probs = [(freq/sum_) for freq in freqs]
         return all_related_nums, weighted_probs
     
-    def _get_common_num(self, prev_num, range_, model, model_idx):
+    def _get_common_num(self, prev_num, range_, model, model_idx, model_nums):
         """ Finds num in range which is larger than prev_num. Returns list object. """
         # get num of consecutive model range excluding first
-        range_reps = 0
-        while model_idx < 4:  
-            if model[model_idx] == model[model_idx+1]:
-                range_reps += 1
-            model_idx += 1
+        range_reps = self._get_range_reps(model, model_idx)
+        end_range = (range_ * 10) + 10  - range_reps
+        begin_range = prev_num + 1
+        if in_range(prev_num) != range_:
+            begin_range = range_ * 10
+        valid_range = [*range(begin_range, end_range)]
         if prev_num in self.num_to_others_freq:
             # has related nums
             related_range_nums = []
             freqs = []
             for num, freq in self.num_to_others_freq[prev_num].items():
-                if in_range(num) == range_:
+                if num in valid_range:
                     related_range_nums.append(num)
                     freqs.append(freq)
             if not freqs:
                 # no related nums within specified range_. Choose random number in specified range
                 if in_range(prev_num) != range_:
                     prev_num = (range_ * 10) - 1
+                print(model)
+                print(model_nums)
+                print("Range_reps: " + str(range_reps))
+                print("Debugging:\nStart: " + str(prev_num+1) + " End: " + str((range_*10)+10-range_reps))
                 return [random.choice([num for num in range(prev_num+1, ((range_*10)+10)-range_reps)])]
             sum_ = float(sum(freqs))
             weighted_probs = [(freq/sum_) for freq in freqs]
@@ -107,6 +125,10 @@ class RelationModel:
             # TODO: check if this is right
             if in_range(prev_num) != range_:
                 prev_num = (range_ * 10) - 1  # increases prev_num
+            print(model)
+            print(model_nums)
+            print("Range_reps: " + str(range_reps))
+            print("Debugging:\nStart: " + str(prev_num+1) + " End: " + str((range_*10)+10-range_reps))
             return [random.choice([num for num in range(prev_num+1, ((range_*10)+10)-range_reps)])]
 
     def get_relations(self):
@@ -260,9 +282,10 @@ class RelationModel:
         # get first val
         first_range = int(model[0])
         total_range_freq = 0.0
-        range_nums = [num for num in range(first_range*10, (first_range*10)+10)]
-        range_poss_freq = [0]*10
-        idx = 0
+        range_reps = self._get_range_reps(model, 0)
+        range_nums = [num for num in range(first_range*10, (first_range*10)+10-range_reps)]
+        range_poss_freq = [0]*(10-range_reps)
+        idx = 0        
         for num in range_nums:
             # TODO: test if this is correctly 
             if num in self.first_num_freq:
@@ -271,29 +294,36 @@ class RelationModel:
             idx += 1
         weighted_freqs = [(freq/total_range_freq) for freq in range_poss_freq]
         model_nums = random.choices(range_nums, weights=weighted_freqs, k=1)
+
         # get remaining vals based on horizontal and vertical relations
         prev_range = first_range
         prev_num = model_nums[0]
         curr_range_idx = 1
-        
         while len(model_nums) != 5:
             curr_range = int(model[curr_range_idx])
             next_num = [-1]
-            if curr_range == prev_range or curr_range == prev_range + 1:  # horizontal relation possibility. TODO: consider weighted prob for hoz
+            if curr_range == prev_range or curr_range == prev_range + 1:  # horizontal relation possibility.
+                if curr_range == prev_range + 1:
+                   range_reps = self._get_range_reps(model, curr_range_idx)
                 if prev_num in self.horizontal_relations:
-                    vals, weighted_probs = self._get_probs(prev_num)
-                    next_num = random.choices(vals, weights=weighted_probs, k=1)
-                    # only accept next_num in curr_range
-                    if in_range(next_num[0]) != curr_range:  # this probability changes depending on what curr_Range is.
-                        next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx)
+                    vals, weighted_probs = self._get_probs(prev_num, range_reps)
+                    if vals:  # there are related values in same range reps
+                        next_num = random.choices(vals, weights=weighted_probs, k=1)
+                        # only accept next_num in curr_range
+                        if in_range(next_num[0]) != curr_range:  # this probability changes depending on what curr_Range is.
+                            next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx, model_nums)
+                    else:
+                        next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx, model_nums)
                 else:
-                    next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx)
+                    next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx, model_nums)
             else:  # no hoz relation
-                next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx)
+                range_reps = self._get_range_reps(model, curr_range_idx)
+                next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx, model_nums)
             model_nums += next_num
             # prepare for next iter
             prev_range = curr_range
             prev_num = next_num[0]
             curr_range_idx += 1
+            
 
         return model_nums
