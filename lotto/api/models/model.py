@@ -90,7 +90,7 @@ class RelationModel:
         weighted_probs = [(freq/sum_) for freq in freqs]
         return all_related_nums, weighted_probs
     
-    def _get_common_num(self, prev_num, range_, model, model_idx, model_nums):
+    def _get_common_num(self, prev_num, range_, model, model_idx):
         """ Finds num in range which is larger than prev_num. Returns list object. """
         # get num of consecutive model range excluding first
         range_reps = self._get_range_reps(model, model_idx)
@@ -111,10 +111,6 @@ class RelationModel:
                 # no related nums within specified range_. Choose random number in specified range
                 if in_range(prev_num) != range_:
                     prev_num = (range_ * 10) - 1
-                print(model)
-                print(model_nums)
-                print("Range_reps: " + str(range_reps))
-                print("Debugging:\nStart: " + str(prev_num+1) + " End: " + str((range_*10)+10-range_reps))
                 return [random.choice([num for num in range(prev_num+1, ((range_*10)+10)-range_reps)])]
             sum_ = float(sum(freqs))
             weighted_probs = [(freq/sum_) for freq in freqs]
@@ -125,10 +121,6 @@ class RelationModel:
             # TODO: check if this is right
             if in_range(prev_num) != range_:
                 prev_num = (range_ * 10) - 1  # increases prev_num
-            print(model)
-            print(model_nums)
-            print("Range_reps: " + str(range_reps))
-            print("Debugging:\nStart: " + str(prev_num+1) + " End: " + str((range_*10)+10-range_reps))
             return [random.choice([num for num in range(prev_num+1, ((range_*10)+10)-range_reps)])]
 
     def get_relations(self):
@@ -256,7 +248,7 @@ class RelationModel:
             model = model[0]  # get string
             if model == second_poss:
                 letter_idx += 1
-        print('Prior model: ' + model)
+        # print('Prior model: ' + model)
         # convert model to coordinate
         pred_coord = convert_model_to_coordinates(model)
         # linear regression
@@ -264,7 +256,7 @@ class RelationModel:
         y = np.asarray(self.y)  # array of integers
         reg = LinearRegression().fit(X, y)
         # score
-        print('Lin Reg Score: '  + str(reg.score(X,y)))
+        # print('Lin Reg Score: '  + str(reg.score(X,y)))
         num_model = reg.predict(np.array([pred_coord]))
         pred_coord.append(num_model[0])
         # TODO: choose best model
@@ -311,14 +303,14 @@ class RelationModel:
                         next_num = random.choices(vals, weights=weighted_probs, k=1)
                         # only accept next_num in curr_range
                         if in_range(next_num[0]) != curr_range:  # this probability changes depending on what curr_Range is.
-                            next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx, model_nums)
+                            next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx)
                     else:
-                        next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx, model_nums)
+                        next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx)
                 else:
-                    next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx, model_nums)
+                    next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx)
             else:  # no hoz relation
                 range_reps = self._get_range_reps(model, curr_range_idx)
-                next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx, model_nums)
+                next_num = self._get_common_num(prev_num, curr_range, model, curr_range_idx)
             model_nums += next_num
             # prepare for next iter
             prev_range = curr_range
