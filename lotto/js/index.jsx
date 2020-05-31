@@ -19,6 +19,7 @@ class Index extends React.Component {
         this.handleClick = this.handleClick.bind(this);
         this.renderResults = this.renderResults.bind(this);
         this.handlePrediction = this.handlePrediction.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
     }
 
     handleSubmit(event) {
@@ -148,6 +149,18 @@ class Index extends React.Component {
             });
     }
 
+    handleDelete(event){
+        const url='/delete/';
+        fetch(url, { credentials: 'same-origin' })
+            .then((response) => {
+                if (!response.ok) throw Error(response.statusText);
+                return response.json();
+            })
+            .then((data) => {
+                alert('Deleted Entry')
+            });
+    }
+
     render() {
         return(
             <div>
@@ -197,6 +210,11 @@ class Index extends React.Component {
                 <br/>
                 <button onClick={this.handlePrediction}>
                     Make Prediction
+                </button>
+                <br/>
+                <br/>
+                <button onClick={this.handleDelete}>
+                    Delete Entry
                 </button>
                 <br/>
                 <br/>

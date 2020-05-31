@@ -118,3 +118,12 @@ def handle_file_upload():
     # ack
     context = {} 
     return flask.jsonify(**context)
+
+@lotto.app.route('/delete/', methods=['GET','POST'])
+def handle_delete():
+    """ Delete most recent entry. """
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM combinations WHERE ID=(SELECT MAX(id) FROM combinations)")
+    context = {}
+    return flask.jsonify(**context)
